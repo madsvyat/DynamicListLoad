@@ -19,15 +19,14 @@ import android.widget.ListView;
 public class HomeActivity extends ActionBarActivity 
         implements LoaderManager.LoaderCallbacks<Cursor> {
     
-    private static final int LOADER_ID = 1;   
-    private static final String LOG_TAG = "tmp_tag";
+    private static final int LOADER_ID = 1;
     private static final int PAGE_SIZE = 50;
-    private int offset = 0; 
-    private int limit  = 50;
+    
     private ListView itemsListView;
     private View footerView;
     private CursorAdapter itemsAdapter;
     private int previousLast;
+    private int limit  = PAGE_SIZE;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,7 +56,6 @@ public class HomeActivity extends ActionBarActivity
                 int lastItem = firstVisibleItem + visibleItemCount;
                 if (lastItem == totalItemCount) {
                     if (previousLast != lastItem) { //to avoid multiple calls for last item
-                        Log.d(LOG_TAG, "Last");
                         previousLast = lastItem;
                         limit += PAGE_SIZE;
                         if (itemsListView.getFooterViewsCount() == 0) {
@@ -93,10 +91,8 @@ public class HomeActivity extends ActionBarActivity
         if (id == LOADER_ID) {
             Uri queryUri = DBData.URI_ITEMS.buildUpon()
                     .appendQueryParameter(ItemsContentProvider.QUERY_PARAMETER_LIMIT, String.valueOf(limit))
-                    .appendQueryParameter(ItemsContentProvider.QUERY_PARAMETER_OFFSET, String.valueOf(offset))
+                    .appendQueryParameter(ItemsContentProvider.QUERY_PARAMETER_OFFSET, String.valueOf(0))
                     .build();
-            Log.d(LOG_TAG, queryUri.toString());
-            Log.d(LOG_TAG, queryUri.getLastPathSegment());
             return new CursorLoader(this, queryUri, null, null, null, null);
         } 
         return null;
@@ -114,7 +110,6 @@ public class HomeActivity extends ActionBarActivity
     public void onLoaderReset(Loader<Cursor> cursorLoader) {
         if (cursorLoader.getId() == LOADER_ID) {
             itemsAdapter.swapCursor(null);
-          //  itemsListView.addFooterView(footerView);
         }
     }
 }
